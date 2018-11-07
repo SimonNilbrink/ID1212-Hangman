@@ -8,7 +8,7 @@ public class Game {
 
     private String word;
     private int failedAttempts;
-    private String theWordSoFar[];
+    private char theWordSoFar[];
     private int totalScore;
 
     /**
@@ -22,5 +22,31 @@ public class Game {
     }
     public void pickAWord() {
         this.word = WordGenerator.getWord();
+        this.failedAttempts = word.length();
     }
+
+    public void guessWithLetter(char guess) {
+        boolean isWrongGuess = true;
+
+        for (int i = 0; i <= this.word.length(); i++) {
+            if(guess == word.charAt(i)) {
+               theWordSoFar[i] = guess;
+               isWrongGuess = false;
+            }
+        }
+        if (isWrongGuess) {
+            failedAttempts--;
+        }
+    }
+
+    public void guessWithWord(String guess) {
+
+        if(this.word.equals(guess)) {
+            //you guessed right
+        }
+        else {
+            failedAttempts--;
+        }
+    }
+
 }
