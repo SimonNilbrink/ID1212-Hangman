@@ -2,6 +2,7 @@ package client.net;
 
 
 import common.Request;
+import common.Response;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -48,8 +49,6 @@ public class ConnectionHandler {
         Request request = new Request(GUESSLETTER);
         request.setLetterToGuess(letterToGuess);
         sendGuess(request);
-
-
     }
 
     /**
@@ -60,7 +59,6 @@ public class ConnectionHandler {
         Request request = new Request(GUESSWORD);
         request.setWordToGuess(wordToGuess);
         sendGuess(request);
-
     }
 
     /**
@@ -68,17 +66,33 @@ public class ConnectionHandler {
      */
     public void quitGame(){
         sendGuess(new Request(QUIT));
-
     }
 
 
-    //Will take the decided protocol as a parameter and send it to the server.
+    /**
+     *
+     * Takes the Reequest created in the public functions and sends it to the server.
+     * @param request the protocol used for requests
+     */
     private void sendGuess(Request request){
         try {
             toServer.writeObject(request);
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     *
+     * This function calculate the size of the Request object and prepend it to an byte array
+     * that contains the object itself.
+     * @param request the object to be sent
+     * @return an array with the object and the length to be sent
+     */
+    private byte[] caluclateAndPrependSizeOfObjectToBeSent(Request request){
+        //TODO
+        return null;
     }
 
 
@@ -90,8 +104,8 @@ public class ConnectionHandler {
         public void run() {
             while(true){
                 try {
-                    Request request = (Request) fromServer.readObject();
-                    gameObserver.gameChanges(request);
+                    Response response = (Response) fromServer.readObject();
+                    gameObserver.gameChanges(response);
                 }catch (IOException e){
                     e.printStackTrace();
                 }catch (ClassNotFoundException e){

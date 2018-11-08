@@ -2,6 +2,9 @@ package client.controller;
 
 import client.net.ConnectionHandler;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
 public class Controller {
 
     private final ConnectionHandler connectionHandler;
@@ -16,7 +19,16 @@ public class Controller {
 
 
     public void guessLetter(char guessedLetter){
-        connectionHandler.sendLetterToGuess(guessedLetter);
+        CompletableFuture.runAsync(() -> {
+            connectionHandler.sendLetterToGuess(guessedLetter);
+           });
+
+    }
+
+    public void guessWord(String wordToGuess){
+        CompletableFuture.runAsync(() -> {
+                connectionHandler.sendWordToGuess(wordToGuess);
+            });
 
     }
 
