@@ -18,10 +18,11 @@ public class UserInterface implements Runnable{
     @Override
     public void run() {
         boolean running = true;
+        boolean gameStarted = false;
         java.util.Scanner input = new java.util.Scanner(System.in);
         String guess;
         connect();
-        System.out.println("'*quit' to exit game, '*new game' to starta new game.");
+        System.out.println("'*quit' to exit game, '*new game' to start a new game.");
         while(running){
             System.out.print("");
             guess = input.nextLine();
@@ -33,16 +34,19 @@ public class UserInterface implements Runnable{
                         break;
                     case "*new game":
                         controller.newGame();
+                        gameStarted = true;
                         break;
                     default:
                         System.out.println("Possible command is *quit and *new game");
                         break;
                 }
             }
-            else if(guess.length()==1)
+            else if(guess.length()==1 && gameStarted)
                 controller.guessLetter(guess.charAt(0));
-            else
+            else if(gameStarted)
                 controller.guessWord(guess);
+            else
+                System.out.println("You need to starta new game before guessing.");
         }
     }
 
