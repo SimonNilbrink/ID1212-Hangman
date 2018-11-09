@@ -13,7 +13,6 @@ public class Main {
         ConnectionHandler connectionHandler = new ConnectionHandler(gameView);
         Controller controller = new Controller(connectionHandler);
         UserInterface userInterface = new UserInterface(controller);
-
         new Thread(userInterface).start();
 
     }

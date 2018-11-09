@@ -12,7 +12,7 @@ import java.net.Socket;
 /**
  * Handles all communication with one specific game client, makes sure to serve the client with what it requests.
  */
-public class ClientHandler {
+public class ClientHandler implements Runnable {
 
     private ObjectOutputStream toTheClient;
     private ObjectInputStream fromTheClient;
@@ -25,11 +25,12 @@ public class ClientHandler {
         this.clientSocket = clientSocket;
 
     }
-
-    public void receive(){
+    @Override
+    public void run(){
         Response response;
         try {
-        fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
+            fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
+            toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -53,13 +54,15 @@ public class ClientHandler {
                         response = game.guessWithWord(request.getWordToGuess());
                         sendToClient(response);
                         break;
+                    default :
+                        System.out.println("no ");
                 }
             }
             catch (ClassNotFoundException ex){
                 ex.printStackTrace();
             }
             catch (IOException ex) {
-                ex.printStackTrace();
+                clientDisconnect();
             }
         }
     }
@@ -69,7 +72,6 @@ public class ClientHandler {
      */
     public void sendToClient(Response response) {
         try {
-            toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
             toTheClient.writeObject(response);
             toTheClient.flush();
             toTheClient.reset();

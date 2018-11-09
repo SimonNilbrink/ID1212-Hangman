@@ -5,44 +5,55 @@ import client.controller.Controller;
 
 import javax.swing.*;
 
+/**
+ * The class UserInterface takes care of all the input from the user.
+ */
 public class UserInterface implements Runnable{
 
     private Controller controller;
-
-
 
     public UserInterface(Controller controller) {
         this.controller = controller;
     }
 
+
+    /**
+     * The user interface runs in a separate thread.
+     */
     @Override
     public void run() {
+        boolean running = true;
+        boolean gameStarted = false;
         java.util.Scanner input = new java.util.Scanner(System.in);
         String guess;
         connect();
-        System.out.println("'*quit' to exit game, '*new game' to starta new game.\n" +
-                "If you start a new game under a running game, you loose a point. ");
-        while(true){
-            System.out.print("Guess: ");
+        System.out.println("'*quit' to exit game, '*new game' to start a new game.");
+        while(running){
+            System.out.print("");
             guess = input.nextLine();
-
-            if(guess.charAt(0)=='*') {
+            if(guess.equals(""))
+                continue;
+            else if(guess.charAt(0)=='*') {
                 switch (guess) {
                     case "*quit":
                         controller.quitGame();
+                        running = false;
                         break;
                     case "*new game":
                         controller.newGame();
+                        gameStarted = true;
                         break;
                     default:
                         System.out.println("Possible command is *quit and *new game");
                         break;
                 }
             }
-            else if(guess.length()==1)
+            else if(guess.length()==1 && gameStarted)
                 controller.guessLetter(guess.charAt(0));
-            else
+            else if(gameStarted)
                 controller.guessWord(guess);
+            else
+                System.out.println("You need to start a new game before guessing.");
         }
     }
 
@@ -63,10 +74,10 @@ public class UserInterface implements Runnable{
             JOptionPane.showConfirmDialog(null, fields, "Connect to Server", JOptionPane.OK_CANCEL_OPTION);
             try {
                 controller.connect(ip.getText(), Integer.parseInt(port.getText()));
+                notConnected = false;
             }catch (ConnectionErrorException connectionError){
                 System.out.println("No connection could be established");
             }
-
         }
     }
 }
