@@ -1,13 +1,20 @@
 package common;
 
-public class Response {
+import java.io.Serializable;
+
+public class Response implements Serializable {
 
 
     private boolean isDone = false;
     private char theWordSoFar[];
     private int totalScore;
     private int attemptsLeft;
-    private String word;
+
+    public Response(char[] theWordSoFar, int totalScore, int attemptsLeft) {
+        this.theWordSoFar = theWordSoFar;
+        this.totalScore = totalScore;
+        this.attemptsLeft = attemptsLeft;
+    }
 
     public boolean isDone() {
         return isDone;
@@ -39,13 +46,5 @@ public class Response {
 
     public void setAttemptsLeft(int attemptsLeft) {
         this.attemptsLeft = attemptsLeft;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
     }
 }

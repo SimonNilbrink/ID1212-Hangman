@@ -36,6 +36,7 @@ public class GameServer {
      */
     public void startClientHandler(Socket clientSocket){
         ClientHandler client = new ClientHandler(clientSocket);
+        client.receive();
 
     }
 
