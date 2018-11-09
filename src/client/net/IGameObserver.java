@@ -7,5 +7,6 @@ public interface IGameObserver {
 
 
     void gameChanges(Response response);
+    void connectionLost();
 
 }

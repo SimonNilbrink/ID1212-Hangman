@@ -24,16 +24,12 @@ public class ConnectionHandler {
         this.gameObserver = gameObserver;
     }
 
-    public void connect(String host, int port){
-        try {
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(host, port));
-            fromServer = new ObjectInputStream(socket.getInputStream());
-            toServer = new ObjectOutputStream(socket.getOutputStream());
-            new Thread(new Listener()).start();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    public void connect(String host, int port) throws IOException{
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(host, port));
+        fromServer = new ObjectInputStream(socket.getInputStream());
+        toServer = new ObjectOutputStream(socket.getOutputStream());
+        new Thread(new Listener()).start();
     }
 
 
@@ -65,7 +61,12 @@ public class ConnectionHandler {
      *
      */
     public void quitGame(){
-        sendGuess(new Request(QUIT));
+        try {
+            sendGuess(new Request(QUIT));
+            socket.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -77,6 +78,8 @@ public class ConnectionHandler {
     private void sendGuess(Request request){
         try {
             toServer.writeObject(request);
+            toServer.flush();
+            toServer.close();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -107,7 +110,7 @@ public class ConnectionHandler {
                     Response response = (Response) fromServer.readObject();
                     gameObserver.gameChanges(response);
                 }catch (IOException e){
-                    e.printStackTrace();
+                    gameObserver.connectionLost();
                 }catch (ClassNotFoundException e){
                     e.printStackTrace();
                 }

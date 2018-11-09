@@ -13,24 +13,30 @@ public class Controller {
         this.connectionHandler = connectionHandler;
     }
 
-    public void connect(String ip, int port){
-        connectionHandler.connect(ip,port);
+    public void connect(String ip, int port)throws ConnectionErrorException {
+        try {
+            connectionHandler.connect(ip, port);
+
+        }catch (IOException e){
+            throw new ConnectionErrorException("Connection couldt not be established to the server",e);
+        }
     }
-
-
     public void guessLetter(char guessedLetter){
         CompletableFuture.runAsync(() -> {
             connectionHandler.sendLetterToGuess(guessedLetter);
            });
 
     }
-
     public void guessWord(String wordToGuess){
         CompletableFuture.runAsync(() -> {
                 connectionHandler.sendWordToGuess(wordToGuess);
             });
 
     }
-
-
+    public void quitGame(){
+        connectionHandler.quitGame();
+    }
+    public void  newGame(){
+        connectionHandler.newGame();
+    }
 }

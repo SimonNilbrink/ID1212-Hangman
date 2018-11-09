@@ -21,6 +21,11 @@ public class GameView implements IGameObserver {
         System.out.println("Guess: ");
     }
 
+    @Override
+    public void connectionLost() {
+        System.out.println("Connection lost");
+    }
+
     private String formatWordSoFar(char[] wordSoFar){
         StringBuilder stringBuilder = new StringBuilder();
         for(char letter:wordSoFar){
