@@ -1,6 +1,5 @@
 package server.net;
 
-import server.controller.Controller;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,11 +10,6 @@ import java.net.Socket;
 public class GameServer {
 
     int portNr = 1337;
-    Controller controller;
-
-    public GameServer(Controller controller) {
-        this.controller = controller;
-    }
 
     public void serve() {
         try {
@@ -36,7 +30,7 @@ public class GameServer {
      */
     public void startClientHandler(Socket clientSocket){
         ClientHandler client = new ClientHandler(clientSocket);
-        client.receive();
+        new Thread(client).start();
 
     }
 
