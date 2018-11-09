@@ -26,10 +26,11 @@ public class ConnectionHandler {
 
     public void connect(String host, int port) throws IOException{
         socket = new Socket();
-        socket.connect(new InetSocketAddress(host, port));
-        fromServer = new ObjectInputStream(socket.getInputStream());
+        socket.connect(new InetSocketAddress(host,port),10000);
         toServer = new ObjectOutputStream(socket.getOutputStream());
+        fromServer = new ObjectInputStream(socket.getInputStream());
         new Thread(new Listener()).start();
+
     }
 
 
@@ -79,7 +80,7 @@ public class ConnectionHandler {
         try {
             toServer.writeObject(request);
             toServer.flush();
-            toServer.close();
+            toServer.reset();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -103,20 +104,21 @@ public class ConnectionHandler {
      * Inner class that are listening for communication from the server
      */
     private class Listener implements Runnable{
+        boolean run = true;
         @Override
         public void run() {
-            while(true){
-                try {
+            try {
+                while(true) {
                     Response response = (Response) fromServer.readObject();
                     gameObserver.gameChanges(response);
-                }catch (IOException e){
-                    gameObserver.connectionLost();
-                }catch (ClassNotFoundException e){
-                    e.printStackTrace();
                 }
-
+            }catch (IOException e){
+                gameObserver.connectionLost();
+                run = false;
+            }catch (ClassNotFoundException e){
+                e.printStackTrace();
             }
         }
     }
-
 }
+

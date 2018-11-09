@@ -29,7 +29,9 @@ public class ClientHandler {
     public void receive(){
         Response response;
         try {
-        fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
+            fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
+            toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
+
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -53,6 +55,8 @@ public class ClientHandler {
                         response = game.guessWithWord(request.getWordToGuess());
                         sendToClient(response);
                         break;
+                    default :
+                        System.out.println("no ");
                 }
             }
             catch (ClassNotFoundException ex){
@@ -69,7 +73,6 @@ public class ClientHandler {
      */
     public void sendToClient(Response response) {
         try {
-            toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
             toTheClient.writeObject(response);
             toTheClient.flush();
             toTheClient.reset();

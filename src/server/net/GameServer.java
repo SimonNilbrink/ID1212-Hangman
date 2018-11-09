@@ -10,7 +10,7 @@ import java.net.Socket;
  */
 public class GameServer {
 
-    int portNr = 1010;
+    int portNr = 1337;
     Controller controller;
 
     public GameServer(Controller controller) {
@@ -26,7 +26,7 @@ public class GameServer {
             }
         }
         catch(IOException ex) {
-            System.err.println("Server fail");
+            ex.printStackTrace();
         }
     }
 

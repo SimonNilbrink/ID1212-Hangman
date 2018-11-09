@@ -23,7 +23,7 @@ public class UserInterface implements Runnable{
         System.out.println("'*quit' to exit game, '*new game' to starta new game.\n" +
                 "If you start a new game under a running game, you loose a point. ");
         while(true){
-            System.out.print("Guess: ");
+            System.out.print("");
             guess = input.nextLine();
 
             if(guess.charAt(0)=='*') {
@@ -63,10 +63,11 @@ public class UserInterface implements Runnable{
             JOptionPane.showConfirmDialog(null, fields, "Connect to Server", JOptionPane.OK_CANCEL_OPTION);
             try {
                 controller.connect(ip.getText(), Integer.parseInt(port.getText()));
+                notConnected = false;
+                System.out.println("Connection done");
             }catch (ConnectionErrorException connectionError){
                 System.out.println("No connection could be established");
             }
-
         }
     }
 }

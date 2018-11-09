@@ -14,12 +14,13 @@ public class Controller {
     }
 
     public void connect(String ip, int port)throws ConnectionErrorException {
-        try {
-            connectionHandler.connect(ip, port);
-
-        }catch (IOException e){
-            throw new ConnectionErrorException("Connection couldt not be established to the server",e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                connectionHandler.connect(ip, port);
+            } catch (IOException e) {
+                //throw new ConnectionErrorException("Connection couldt not be established to the server", e);
+            }
+        });
     }
     public void guessLetter(char guessedLetter){
         CompletableFuture.runAsync(() -> {
@@ -37,6 +38,8 @@ public class Controller {
         connectionHandler.quitGame();
     }
     public void  newGame(){
-        connectionHandler.newGame();
+        CompletableFuture.runAsync(()-> {
+            connectionHandler.newGame();
+        });
     }
 }

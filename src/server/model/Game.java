@@ -12,12 +12,15 @@ public class Game {
     private int rightGuesses = 0;
     private char[] theWordSoFar;
     private int totalScore = 0;
+    private String guessedLetters;
 
 
     public Response newGame(){
         pickAWord();
         this.attemptsLeft = word.length();
         theWordSoFar = new char[word.length()];
+        rightGuesses = 0;
+        guessedLetters = "";
         return new Response(theWordSoFar,totalScore,attemptsLeft);
     }
 
@@ -30,23 +33,27 @@ public class Game {
         boolean isWrongGuess = true;
         boolean isDone = false;
 
-        for (int i = 0; i <= this.word.length(); i++) {
-            if(guess == word.charAt(i)) {
-               theWordSoFar[i] = guess;
-               isWrongGuess = false;
-               rightGuesses++;
+
+        if (guessedLetters.indexOf(guess)<0) {
+            for (int i = 0; i < this.word.length(); i++) {
+                if(guess == word.charAt(i)) {
+                   theWordSoFar[i] = guess;
+                   isWrongGuess = false;
+                   rightGuesses++;
+                }
             }
-        }
-        if (isWrongGuess) {
-            attemptsLeft--;
-            if (attemptsLeft == 0) {
-                totalScore--;
+            if (isWrongGuess) {
+                attemptsLeft--;
+                if (attemptsLeft == 0) {
+                    totalScore--;
+                    isDone = true;
+                }
+            }else if(rightGuesses==word.length()){
                 isDone = true;
+                attemptsLeft = -1;
+                totalScore++;
             }
-        }else if(rightGuesses==word.length()){
-            isDone = true;
-            attemptsLeft = -1;
-            totalScore++;
+            guessedLetters = guessedLetters + guess;
         }
         Response response = new Response(theWordSoFar,totalScore,attemptsLeft);
         response.setDone(isDone);

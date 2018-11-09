@@ -8,17 +8,30 @@ public class GameView implements IGameObserver {
     @Override
     public void gameChanges(Response response) {
         int attemptsLeft = response.getAttemptsLeft();
-        char[] theWordSoFar = response.getTheWordSoFar();
+        String theWordSoFar = formatWordSoFar(response.getTheWordSoFar());
         int score = response.getTotalScore();
 
-        String formatedWordSoFar = formatWordSoFar(theWordSoFar);
-        String outputAttemptsLeft = String.format("You have %d attempts left ",attemptsLeft);
-        String outputScore = String.format("Your score is %d",score);
         System.out.println();
-        System.out.println(formatedWordSoFar);
-        System.out.println(outputAttemptsLeft);
-        System.out.println(outputScore);
-        System.out.println("Guess: ");
+        if (!response.isDone()) {
+            String outputAttemptsLeft = String.format("You have %d attempts left ",attemptsLeft);
+            String outputScore = String.format("Your score is %d",score);
+            System.out.println(theWordSoFar);
+            System.out.println(outputAttemptsLeft);
+            System.out.println(outputScore);
+            System.out.print("Guess: ");
+        }else{
+            if(attemptsLeft<0){
+                System.out.println("Congratulation, you won\n" +
+                        "The right word was "+theWordSoFar+"\n"+
+                        "Your score is "+score+"\n"+
+                        "*new game for new game, *quit to exit");
+            }else{
+                System.out.println("You loose\n" +
+                        "Your score is "+score+"\n"+
+                        "'*new game' for new game, '*quit' to exit");
+            }
+            System.out.print("");
+        }
     }
 
     @Override
