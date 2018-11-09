@@ -17,19 +17,19 @@ public class UserInterface implements Runnable{
 
     @Override
     public void run() {
+        boolean running = true;
         java.util.Scanner input = new java.util.Scanner(System.in);
         String guess;
         connect();
-        System.out.println("'*quit' to exit game, '*new game' to starta new game.\n" +
-                "If you start a new game under a running game, you loose a point. ");
-        while(true){
+        System.out.println("'*quit' to exit game, '*new game' to starta new game.");
+        while(running){
             System.out.print("");
             guess = input.nextLine();
-
             if(guess.charAt(0)=='*') {
                 switch (guess) {
                     case "*quit":
                         controller.quitGame();
+                        running = false;
                         break;
                     case "*new game":
                         controller.newGame();
@@ -64,7 +64,6 @@ public class UserInterface implements Runnable{
             try {
                 controller.connect(ip.getText(), Integer.parseInt(port.getText()));
                 notConnected = false;
-                System.out.println("Connection done");
             }catch (ConnectionErrorException connectionError){
                 System.out.println("No connection could be established");
             }
