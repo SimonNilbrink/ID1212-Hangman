@@ -5,16 +5,21 @@ import client.controller.Controller;
 
 import javax.swing.*;
 
+/**
+ * The class UserInterface takes care of all the input from the user.
+ */
 public class UserInterface implements Runnable{
 
     private Controller controller;
-
-
 
     public UserInterface(Controller controller) {
         this.controller = controller;
     }
 
+
+    /**
+     * The user interface runs in a separate thread.
+     */
     @Override
     public void run() {
         boolean running = true;
@@ -26,7 +31,9 @@ public class UserInterface implements Runnable{
         while(running){
             System.out.print("");
             guess = input.nextLine();
-            if(guess.charAt(0)=='*') {
+            if(guess.equals(""))
+                continue;
+            else if(guess.charAt(0)=='*') {
                 switch (guess) {
                     case "*quit":
                         controller.quitGame();
@@ -46,7 +53,7 @@ public class UserInterface implements Runnable{
             else if(gameStarted)
                 controller.guessWord(guess);
             else
-                System.out.println("You need to starta new game before guessing.");
+                System.out.println("You need to start a new game before guessing.");
         }
     }
 

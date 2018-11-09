@@ -3,8 +3,17 @@ package client.view;
 import client.net.IGameObserver;
 import common.Response;
 
+
+/**
+ * Implementation of the Observer pattern. Formats and show all data from the server.
+ */
 public class GameView implements IGameObserver {
 
+
+    /**
+     * Called when the server returns with a response that should be formated and printed to the user.
+     * @param response the response from the server.
+     */
     @Override
     public void gameChanges(Response response) {
         int attemptsLeft = response.getAttemptsLeft();
@@ -34,11 +43,20 @@ public class GameView implements IGameObserver {
         }
     }
 
+    /**
+     * Informs the user that the connection has been lost.
+     */
     @Override
     public void connectionLost() {
         System.out.println("Connection lost");
     }
 
+    /**
+     * Format the string that will represent all the corect letters.
+     *
+     * @param wordSoFar the char array that contains all the right letters in correct place.
+     * @return a formatted string with an underscore where the letter is missing
+     */
     private String formatWordSoFar(char[] wordSoFar){
         StringBuilder stringBuilder = new StringBuilder();
         for(char letter:wordSoFar){
