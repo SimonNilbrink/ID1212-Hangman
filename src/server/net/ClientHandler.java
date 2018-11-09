@@ -12,7 +12,7 @@ import java.net.Socket;
 /**
  * Handles all communication with one specific game client, makes sure to serve the client with what it requests.
  */
-public class ClientHandler {
+public class ClientHandler implements Runnable {
 
     private ObjectOutputStream toTheClient;
     private ObjectInputStream fromTheClient;
@@ -25,13 +25,12 @@ public class ClientHandler {
         this.clientSocket = clientSocket;
 
     }
-
-    public void receive(){
+    @Override
+    public void run(){
         Response response;
         try {
             fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
             toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
-
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -63,7 +62,7 @@ public class ClientHandler {
                 ex.printStackTrace();
             }
             catch (IOException ex) {
-                ex.printStackTrace();
+                clientDisconnect();
             }
         }
     }

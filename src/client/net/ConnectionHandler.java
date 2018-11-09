@@ -1,6 +1,5 @@
 package client.net;
 
-
 import common.Request;
 import common.Response;
 
@@ -26,14 +25,16 @@ public class ConnectionHandler {
 
     public void connect(String host, int port) throws IOException{
         socket = new Socket();
-        socket.connect(new InetSocketAddress(host,port),10000);
+        socket.connect(new InetSocketAddress(host,port),30000);
         toServer = new ObjectOutputStream(socket.getOutputStream());
         fromServer = new ObjectInputStream(socket.getInputStream());
         new Thread(new Listener()).start();
-
     }
 
 
+    /**
+     * Request the server to set up a knew game
+     */
     public void newGame(){
         sendGuess(new Request(NEW_GAME));
     }
@@ -59,7 +60,7 @@ public class ConnectionHandler {
     }
 
     /**
-     *
+     *Send an Request with the type QUIT to tell the server to close its connection to client
      */
     public void quitGame(){
         try {
@@ -107,16 +108,16 @@ public class ConnectionHandler {
         boolean run = true;
         @Override
         public void run() {
-            try {
-                while(true) {
+            while(run) {
+                try {
                     Response response = (Response) fromServer.readObject();
                     gameObserver.gameChanges(response);
+                } catch (IOException e) {
+                    gameObserver.connectionLost();
+                    run = false;
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            }catch (IOException e){
-                gameObserver.connectionLost();
-                run = false;
-            }catch (ClassNotFoundException e){
-                e.printStackTrace();
             }
         }
     }
