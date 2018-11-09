@@ -1,5 +1,9 @@
 package server.net;
 
+import common.Request;
+import common.Response;
+import server.model.Game;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,17 +16,18 @@ public class ClientHandler {
 
     private ObjectOutputStream toTheClient;
     private ObjectInputStream fromTheClient;
+    private Game game = new Game();
     private boolean isConnected;
     private Socket clientSocket;
-    private int totalScore;
 
     public ClientHandler(Socket clientSocket) {
         isConnected = true;
         this.clientSocket = clientSocket;
-        totalScore = 0;
+
     }
 
     public void receive(){
+        Response response;
         try {
         fromTheClient = new ObjectInputStream(clientSocket.getInputStream());
         }
@@ -31,8 +36,24 @@ public class ClientHandler {
         }
         while(isConnected){
             try {
-                Object data = fromTheClient.readObject();
-
+                Request request = (Request)fromTheClient.readObject();
+                switch (request.getRequestType()){
+                    case QUIT:
+                        clientDisconnect();
+                        break;
+                    case NEW_GAME:
+                        response = game.newGame();
+                        sendToClient(response);
+                        break;
+                    case GUESSLETTER:
+                        response = game.guessWithLetter(request.getLetterToGuess());
+                        sendToClient(response);
+                        break;
+                    case GUESSWORD:
+                        response = game.guessWithWord(request.getWordToGuess());
+                        sendToClient(response);
+                        break;
+                }
             }
             catch (ClassNotFoundException ex){
                 ex.printStackTrace();
@@ -46,10 +67,10 @@ public class ClientHandler {
     /**
      * Responsible to send data to the client through the socket.
      */
-    public void sendToClient() {
+    public void sendToClient(Response response) {
         try {
             toTheClient = new ObjectOutputStream(clientSocket.getOutputStream());
-            toTheClient.writeObject("LÄGG IN OBJEKTET HÄR");
+            toTheClient.writeObject(response);
             toTheClient.flush();
             toTheClient.reset();
         }

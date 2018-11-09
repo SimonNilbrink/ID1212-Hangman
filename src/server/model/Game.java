@@ -1,4 +1,5 @@
 package server.model;
+import common.Response;
 import server.util.WordGenerator;
 
 /**
@@ -7,46 +8,67 @@ import server.util.WordGenerator;
 public class Game {
 
     private String word;
-    private int failedAttempts;
-    private char theWordSoFar[];
-    private int totalScore;
+    private int attemptsLeft;
+    private int rightGuesses = 0;
+    private char[] theWordSoFar;
+    private int totalScore = 0;
 
-    /**
-     * creates an instance
-     */
-    public Game() {
-    }
 
-    public void newGame(){
+    public Response newGame(){
         pickAWord();
-    }
-    public void pickAWord() {
-        this.word = WordGenerator.getWord();
-        this.failedAttempts = word.length();
+        this.attemptsLeft = word.length();
+        theWordSoFar = new char[word.length()];
+        return new Response(theWordSoFar,totalScore,attemptsLeft);
     }
 
-    public void guessWithLetter(char guess) {
+
+    private void pickAWord() {
+        this.word = WordGenerator.getWord();
+    }
+
+    public Response guessWithLetter(char guess) {
         boolean isWrongGuess = true;
+        boolean isDone = false;
 
         for (int i = 0; i <= this.word.length(); i++) {
             if(guess == word.charAt(i)) {
                theWordSoFar[i] = guess;
                isWrongGuess = false;
+               rightGuesses++;
             }
         }
         if (isWrongGuess) {
-            failedAttempts--;
+            attemptsLeft--;
+            if (attemptsLeft == 0) {
+                totalScore--;
+                isDone = true;
+            }
+        }else if(rightGuesses==word.length()){
+            isDone = true;
+            attemptsLeft = -1;
+            totalScore++;
         }
+        Response response = new Response(theWordSoFar,totalScore,attemptsLeft);
+        response.setDone(isDone);
+        return response;
     }
 
-    public void guessWithWord(String guess) {
-
+    public Response guessWithWord(String guess) {
+        boolean isDone = false;
         if(this.word.equals(guess)) {
-            //you guessed right
+            totalScore++;
+            isDone = true;
+            attemptsLeft = -1;
         }
         else {
-            failedAttempts--;
+            attemptsLeft--;
+            if (attemptsLeft == 0) {
+                totalScore--;
+                isDone = true;
+            }
         }
+        Response response = new Response(theWordSoFar,totalScore,attemptsLeft);
+        response.setDone(isDone);
+        return response;
     }
-
 }
