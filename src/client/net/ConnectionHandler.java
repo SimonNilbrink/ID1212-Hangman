@@ -6,6 +6,9 @@ import common.Response;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static common.RequestType.*;
 
@@ -15,8 +18,8 @@ import static common.RequestType.*;
 public class ConnectionHandler {
 
     private Socket socket;
-    private ObjectInputStream fromServer;
-    private ObjectOutputStream toServer;
+    private InputStream fromServer;
+    private OutputStream toServer;
     private IGameObserver gameObserver;
 
     public ConnectionHandler(IGameObserver gameObserver) {
@@ -26,8 +29,8 @@ public class ConnectionHandler {
     public void connect(String host, int port) throws IOException{
         socket = new Socket();
         socket.connect(new InetSocketAddress(host,port),30000);
-        toServer = new ObjectOutputStream(socket.getOutputStream());
-        fromServer = new ObjectInputStream(socket.getInputStream());
+        toServer = socket.getOutputStream();
+        fromServer = socket.getInputStream();
         new Thread(new Listener()).start();
     }
 
@@ -79,9 +82,10 @@ public class ConnectionHandler {
      */
     private void sendGuess(Request request){
         try {
-            toServer.writeObject(request);
+            byte[] temp = calculateAndPrependSizeOfObjectToBeSent(request);
+            for (int i = 0;i<temp.length;i++)
+                toServer.write(temp[i]);
             toServer.flush();
-            toServer.reset();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -94,31 +98,77 @@ public class ConnectionHandler {
      * that contains the object itself.
      * @param request the object to be sent
      * @return an array with the object and the length to be sent
-     */
-    private byte[] caluclateAndPrependSizeOfObjectToBeSent(Request request){
-        //TODO
-        return null;
-    }
+     **/
+    private byte[] calculateAndPrependSizeOfObjectToBeSent(Request request){
+        byte[] objectArray;
+        byte[] copy = null;
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 
+            objectOutputStream.writeObject(request);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+
+            objectArray = byteArrayOutputStream.toByteArray();
+
+            ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+            byteBuffer.putInt(objectArray.length);
+
+            byte[] byteBufferArray = byteBuffer.array();
+            copy = new byte[byteBufferArray.length+objectArray.length];
+
+            System.arraycopy(byteBufferArray, 0, copy, 0, byteBufferArray.length);
+            System.arraycopy(objectArray,0,copy,byteBufferArray.length,objectArray.length);
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return copy;
+    }
 
     /**
      * Inner class that are listening for communication from the server
      */
     private class Listener implements Runnable{
         boolean run = true;
+        ByteBuffer byteBuffer;
+        byte[] temp = new byte[4];
         @Override
         public void run() {
             while(run) {
                 try {
-                    Response response = (Response) fromServer.readObject();
+                    for(int i = 0;i<4;i++){
+                        temp[i] = (byte)fromServer.read();
+                    }
+                    byteBuffer = ByteBuffer.wrap(temp);
+                    int size = byteBuffer.getInt(0);
+                    byte[] object = new byte[size];
+                    for(int i = 0; i<size;i++) {
+                        object[i] = (byte) fromServer.read();
+                    }
+                    Response response = byteArrayToResponseObject(object);
                     gameObserver.gameChanges(response);
                 } catch (IOException e) {
                     gameObserver.connectionLost();
                     run = false;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
                 }
             }
+        }
+
+        private Response byteArrayToResponseObject(byte[] objectByteArray){
+            Response response = null;
+            try {
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(objectByteArray);
+                ObjectInputStream in = new ObjectInputStream(byteArrayInputStream);
+                response = (Response) in.readObject();
+            } catch (IOException e){
+                e.printStackTrace();
+            }catch (ClassNotFoundException e){
+                e.printStackTrace();
+            }
+            return response;
         }
     }
 }
