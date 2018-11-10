@@ -57,6 +57,7 @@ public class Game {
         }
         Response response = new Response(theWordSoFar,totalScore,attemptsLeft);
         response.setDone(isDone);
+
         return response;
     }
 

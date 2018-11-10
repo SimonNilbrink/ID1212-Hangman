@@ -17,9 +17,7 @@ public class WordGenerator {
         try {
             FileReader fileReader = new FileReader("words.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
-
             pickWordNr = random.nextInt(nrOfWordsInList);
-            System.out.println(pickWordNr);
             for (int i = 0; i<=pickWordNr; i++){
                 word = bufferedReader.readLine();
                 word = word.toLowerCase();
