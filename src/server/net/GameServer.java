@@ -9,7 +9,8 @@ import java.net.Socket;
  */
 public class GameServer {
 
-    int portNr = 1337;
+    private int portNr = 1337;
+
 
     public void serve() {
         try {
@@ -20,7 +21,7 @@ public class GameServer {
             }
         }
         catch(IOException ex) {
-            ex.printStackTrace();
+            System.err.println("Server fail");
         }
     }
 
