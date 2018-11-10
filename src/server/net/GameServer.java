@@ -9,7 +9,8 @@ import java.net.Socket;
  */
 public class GameServer {
 
-    int portNr = 1337;
+    private int portNr = 1337;
+
 
     public void serve() {
         try {
@@ -20,7 +21,7 @@ public class GameServer {
             }
         }
         catch(IOException ex) {
-            ex.printStackTrace();
+            System.err.println("Server fail");
         }
     }
 
@@ -28,7 +29,7 @@ public class GameServer {
      * Is responsible to create a new clientHandler for a specific client.
      * @param clientSocket is the socket the new client will communicate through.
      */
-    public void startClientHandler(Socket clientSocket){
+    private void startClientHandler(Socket clientSocket){
         ClientHandler client = new ClientHandler(clientSocket);
         new Thread(client).start();
 
