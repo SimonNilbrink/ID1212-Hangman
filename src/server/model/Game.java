@@ -44,6 +44,7 @@ public class Game {
             }
             if (isWrongGuess) {
                 attemptsLeft--;
+
                 if (attemptsLeft == 0) {
                     totalScore--;
                     isDone = true;
