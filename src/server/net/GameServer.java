@@ -28,7 +28,7 @@ public class GameServer {
      * Is responsible to create a new clientHandler for a specific client.
      * @param clientSocket is the socket the new client will communicate through.
      */
-    public void startClientHandler(Socket clientSocket){
+    private void startClientHandler(Socket clientSocket){
         ClientHandler client = new ClientHandler(clientSocket);
         new Thread(client).start();
 

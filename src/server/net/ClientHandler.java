@@ -19,7 +19,7 @@ public class ClientHandler implements Runnable {
     private boolean isConnected;
     private Socket clientSocket;
 
-    public ClientHandler(Socket clientSocket) {
+    ClientHandler(Socket clientSocket) {
         isConnected = true;
         this.clientSocket = clientSocket;
 
@@ -68,7 +68,7 @@ public class ClientHandler implements Runnable {
                         System.out.println("no ");
                 }
             }
-            catch (IOException ex) {
+            catch (Exception ex) {
                 clientDisconnect();
             }
         }
@@ -77,7 +77,7 @@ public class ClientHandler implements Runnable {
     /**
      * Responsible to send data to the client through the socket.
      */
-    public void sendToClient(Response response) {
+    private void sendToClient(Response response) {
         try {
             byte[] temp = calculateAndPrependSizeOfObjectToBeSent(response);
             for (int i = 0;i<temp.length;i++)
@@ -88,7 +88,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void clientDisconnect(){
+    private void clientDisconnect(){
         try {
             clientSocket.close();
             isConnected = false;
@@ -98,9 +98,16 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     *
+     * This function calculate the size of the Resonse object and prepend it to an byte array
+     * that contains the object itself.
+     * @param response the object to be sent
+     * @return an byte array with the object and the length to be sent
+     **/
     private byte[] calculateAndPrependSizeOfObjectToBeSent(Response response){
         byte[] objectArray;
-        byte[] copy = null;
+        byte[] objectAndLengthByteArray = null;
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
@@ -115,18 +122,24 @@ public class ClientHandler implements Runnable {
             byteBuffer.putInt(objectArray.length);
 
             byte[] byteBufferArray = byteBuffer.array();
-            copy = new byte[byteBufferArray.length+objectArray.length];
+            objectAndLengthByteArray = new byte[byteBufferArray.length+objectArray.length];
 
-            System.arraycopy(byteBufferArray, 0, copy, 0, byteBufferArray.length);
-            System.arraycopy(objectArray,0,copy,byteBufferArray.length,objectArray.length);
+            System.arraycopy(byteBufferArray, 0, objectAndLengthByteArray, 0, byteBufferArray.length);
+            System.arraycopy(objectArray,0,objectAndLengthByteArray,byteBufferArray.length,objectArray.length);
 
         }catch (IOException e){
             e.printStackTrace();
         }
 
-        return copy;
+        return objectAndLengthByteArray;
     }
 
+    /**
+     * Takes the receive byte array from the client and output it as the object.
+     *
+     * @param objectByteArray the recieved byte array from client
+     * @return the object that the client sent
+     */
     private Request byteArrayToResponseObject(byte[] objectByteArray){
         Request request = null;
         try {

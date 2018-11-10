@@ -44,7 +44,7 @@ public class ConnectionHandler {
 
     /**
      * Calls the function sendGuess with a guess formated after the decided protocol
-     * @param letterToGuess
+     * @param letterToGuess the letter that the user want to guess
      */
     public void sendLetterToGuess(char letterToGuess){
         Request request = new Request(GUESSLETTER);
@@ -54,7 +54,7 @@ public class ConnectionHandler {
 
     /**
      * Calls the function sendGuess with a guess formated after the decided protocol
-     * @param wordToGuess
+     * @param wordToGuess if the user guesses a whole word
      */
     public void sendWordToGuess(String wordToGuess){
         Request request = new Request(GUESSWORD);
@@ -96,12 +96,13 @@ public class ConnectionHandler {
      *
      * This function calculate the size of the Request object and prepend it to an byte array
      * that contains the object itself.
+     *
      * @param request the object to be sent
      * @return an array with the object and the length to be sent
      **/
     private byte[] calculateAndPrependSizeOfObjectToBeSent(Request request){
         byte[] objectArray;
-        byte[] copy = null;
+        byte[] objectAndLengthArray = null;
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
@@ -116,16 +117,16 @@ public class ConnectionHandler {
             byteBuffer.putInt(objectArray.length);
 
             byte[] byteBufferArray = byteBuffer.array();
-            copy = new byte[byteBufferArray.length+objectArray.length];
+            objectAndLengthArray = new byte[byteBufferArray.length+objectArray.length];
 
-            System.arraycopy(byteBufferArray, 0, copy, 0, byteBufferArray.length);
-            System.arraycopy(objectArray,0,copy,byteBufferArray.length,objectArray.length);
+            System.arraycopy(byteBufferArray, 0, objectAndLengthArray, 0, byteBufferArray.length);
+            System.arraycopy(objectArray,0,objectAndLengthArray,byteBufferArray.length,objectArray.length);
 
         }catch (IOException e){
             e.printStackTrace();
         }
 
-        return copy;
+        return objectAndLengthArray;
     }
 
     /**
@@ -150,7 +151,7 @@ public class ConnectionHandler {
                     }
                     Response response = byteArrayToResponseObject(object);
                     gameObserver.gameChanges(response);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     gameObserver.connectionLost();
                     run = false;
                 }
